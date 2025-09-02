@@ -103,12 +103,6 @@ Flag	Description
 └───────────────┴──────────────┘
 ```
 
-### Final results:
-```
-10.50.12.22
-10.50.12.34
-10.8.21.77  445 3389
-```
 ## License
 This project is released under the MIT License.
 ⚠️ Use only on networks you are authorized to test.
