@@ -46,15 +46,19 @@ Requires:
 
 ## Usage
 Discover only (passive harvest + host subnets, no sweep)
+
 ```sudo python3 scope_harvester.py --iface eth0 --watch-seconds 30 --include-host-subnets --only-harvest```
 
 Full flow: harvest + sweep (emit JSON results)
+
 ```sudo python3 scope_harvester.py --iface eth0 --include-host-subnets --json-out alive.json```
 
 No packet capture (restricted environments)
+
 ```python3 scope_harvester.py --no-tcpdump --include-host-subnets --hint 10.0.0.0/8 --hint 172.16.0.0/12```
 
 Gentler sweep (NIC/VM safe mode)
+
 ```python3 scope_harvester.py --timeout 0.5 --concurrency 512```
 
 ## Key Options
