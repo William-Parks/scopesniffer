@@ -48,30 +48,38 @@ chmod +x scope_harvester.py
 ## Usage Examples
 ### Passive Harvest Only
 Watch traffic and print discovered subnets:
+
 ```sudo python3 scope_harvester.py --iface eth0 --watch-seconds 30 --only-harvest```
 
 Watch + include host’s connected subnets:
+
 ```sudo python3 scope_harvester.py --iface eth0 --watch-seconds 20 --include-host-subnets --only-harvest --cidrs-out cidrs.txt```
 
 ### Harvest + Sweep
 Passive watch, then sweep discovered subnets for responsive hosts:
+
 ```sudo python3 scope_harvester.py --iface eth0 --watch-seconds 20 --include-host-subnets --cidrs-out cidrs.txt --alive-out alive.txt```
 
 Passive watch 10s, sweep, and save JSON:
+
 ```sudo python3 scope_harvester.py --iface eth0 --watch-seconds 10 --include-host-subnets --json-out alive.json```
 
 ### Manual Hints / No Tcpdump
 Skip tcpdump, seed with host subnets + hints:
+
 ```python3 scope_harvester.py --no-tcpdump --include-host-subnets --hint 10.0.0.0/8 --hint 172.16.0.0/12 --cidrs-out cidrs.txt --alive-out alive.txt```
 
 ### Sweep Customization
 Scan specific ports (range + list allowed):
+
 ```python3 scope_harvester.py --no-tcpdump --hint 192.168.0.0/24 --ports 21,22,80,443,445,3389,8000-8100```
 
 Gentle sweep (good for VMs/NICs prone to crashing):
+
 ```python3 scope_harvester.py --no-tcpdump --hint 192.168.0.0/16 --concurrency 512 --timeout 0.5```
 
 Scan all responsive ports per host (not just first found):
+
 ```python3 scope_harvester.py --no-tcpdump --hint 10.20.0.0/16 --all-ports```
 
 ## Example Output
