@@ -2,7 +2,7 @@
 
 ⚡ Passive subnet discovery + fast TCP sweep for internal penetration testing
 
-This tool helps you **quickly identify internal scope** on client networks without running intrusive vulnerability scans. It works in two phases:
+This tool helps penetration testers **quickly identify internal scope** on client networks without running intrusive vulnerability scans. It works in two phases:
 
 1. **Passive Harvesting**  
    Uses `tcpdump` to watch live traffic and extract candidate subnets in use (aggregates into `/24`s, then merges into `/23`/`/22` when dense).  
@@ -14,7 +14,7 @@ This tool helps you **quickly identify internal scope** on client networks witho
 
 ---
 
-## Features
+## ✨ Features
 
 - 🔎 **Passive scope discovery** via `tcpdump` (requires root or `cap_net_admin`)
 - 🖧 **Host subnet seeding** (reads `ip addr` to include locally assigned private ranges)
@@ -24,12 +24,14 @@ This tool helps you **quickly identify internal scope** on client networks witho
 - 📊 **Live CLI interface**  
   - During tcpdump: time remaining, packets seen, private IP hits, hot `/24`s, merged CIDRs preview  
   - During sweep: IPs processed, responsive hosts, mode
-- 📦 **JSON output** (`--json-out alive.json`) for pipeline integration
-- 🛡️ **No vulnerability scanning** – strictly scope discovery
+- 📂 **Output files**  
+  - `--cidrs-out cidrs.txt` → discovered CIDR ranges  
+  - `--alive-out alive.txt` → responsive IPs  
+  - `--json-out alive.json` → full JSON results (`{ip: [ports]}`)
 
 ---
 
-## Installation
+## ⚙️ Installation
 
 Clone this repo and drop the script:
 
@@ -38,46 +40,42 @@ git clone https://github.com/yourname/scope-harvester.git
 cd scope-harvester
 chmod +x scope_harvester.py
 ```
-Requires:
-
+###Requires:
 - Python 3.9+
 - tcpdump in PATH (for passive harvesting)
-- rich (optional, for nicer CLI)
+- rich (optional, for nicer CLI output)
 
-## Usage
-Discover only (passive harvest + host subnets, no sweep)
+## Usage Examples
+### Passive Harvest Only
+Watch traffic and print discovered subnets:
+```sudo python3 scope_harvester.py --iface eth0 --watch-seconds 30 --only-harvest```
 
-```sudo python3 scope_harvester.py --iface eth0 --watch-seconds 30 --include-host-subnets --only-harvest```
+Watch + include host’s connected subnets:
+```sudo python3 scope_harvester.py --iface eth0 --watch-seconds 20 --include-host-subnets --only-harvest --cidrs-out cidrs.txt```
 
-Full flow: harvest + sweep (emit JSON results)
+### Harvest + Sweep
+Passive watch, then sweep discovered subnets for responsive hosts:
+```sudo python3 scope_harvester.py --iface eth0 --watch-seconds 20 --include-host-subnets --cidrs-out cidrs.txt --alive-out alive.txt```
 
-```sudo python3 scope_harvester.py --iface eth0 --include-host-subnets --json-out alive.json```
+Passive watch 10s, sweep, and save JSON:
+```sudo python3 scope_harvester.py --iface eth0 --watch-seconds 10 --include-host-subnets --json-out alive.json```
 
-No packet capture (restricted environments)
+### Manual Hints / No Tcpdump
+Skip tcpdump, seed with host subnets + hints:
+```python3 scope_harvester.py --no-tcpdump --include-host-subnets --hint 10.0.0.0/8 --hint 172.16.0.0/12 --cidrs-out cidrs.txt --alive-out alive.txt```
 
-```python3 scope_harvester.py --no-tcpdump --include-host-subnets --hint 10.0.0.0/8 --hint 172.16.0.0/12```
+### Sweep Customization
+Scan specific ports (range + list allowed):
+```python3 scope_harvester.py --no-tcpdump --hint 192.168.0.0/24 --ports 21,22,80,443,445,3389,8000-8100```
 
-Gentler sweep (NIC/VM safe mode)
+Gentle sweep (good for VMs/NICs prone to crashing):
+```python3 scope_harvester.py --no-tcpdump --hint 192.168.0.0/16 --concurrency 512 --timeout 0.5```
 
-```python3 scope_harvester.py --timeout 0.5 --concurrency 512```
+Scan all responsive ports per host (not just first found):
+```python3 scope_harvester.py --no-tcpdump --hint 10.20.0.0/16 --all-ports```
 
-## Key Options
-```
-Flag	Description
---iface eth0	Interface for tcpdump (default: auto)
---watch-seconds 20	Passive watch duration (default 20s)
---min-hits 3	Minimum sightings per /24 before keeping (default 3)
---include-host-subnets	Add directly-connected private subnets
---hint 10.0.0.0/8	Add manual CIDR hint (repeatable)
---only-harvest	Print discovered CIDRs and exit (skip sweep)
---ports 445,3389,135,80,443	Ports to test (default common set)
---all-ports	Report all responsive ports (default: stop on first hit)
---concurrency 2048	Concurrent TCP connects (default 2048)
---timeout 0.35	Per-port timeout in seconds (default 0.35s)
---json-out alive.json	Write results to JSON file
-```
 ## Example Output
-### During tcpdump watch (rich enabled):
+During tcpdump watch (rich enabled):
 ```
 ┌───────────────────────────────┐
 │ Passive Watch (tcpdump)       │
@@ -91,7 +89,7 @@ Flag	Description
 └───────────────┴───────────────┘
 ```
 
-### During sweep:
+During sweep:
 ```
 ┌──────────────────────────────┐
 │ TCP Connect Sweep            │
@@ -103,6 +101,37 @@ Flag	Description
 └───────────────┴──────────────┘
 ```
 
-## License
+## Example Output Files
+### cidrs.txt (discovered CIDR ranges)
+```
+10.50.12.0/23
+10.8.20.0/22
+192.168.1.0/24
+```
+### alive.txt (list of responsive IPs)
+```
+10.50.12.22
+10.50.12.34
+10.8.21.77
+192.168.1.15
+```
+###alive.json (optional JSON results)
+```
+{
+  "10.50.12.22": [445],
+  "10.50.12.34": [3389],
+  "10.8.21.77": [445, 3389],
+  "192.168.1.15": [80, 443]
+}
+```
+⚠️ Notes
+This is **not** a vulnerability scanner. It only identifies _responsive IPs/ports_.
+
+Run tcpdump with care — some environments may log or alert on promiscuous captures.
+
+Start with conservative settings (--timeout 0.5, --concurrency 512) if you’re testing in a sensitive or unstable environment.
+
+📜 License
 This project is released under the MIT License.
-⚠️ Use only on networks you are authorized to test.
+**⚠️ Use only on networks you are explicitly authorized to test.
+**
