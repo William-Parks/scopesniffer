@@ -14,7 +14,7 @@ This tool helps penetration testers **quickly identify internal scope** on clien
 
 ---
 
-## ✨ Features
+## Features
 
 - 🔎 **Passive scope discovery** via `tcpdump` (requires root or `cap_net_admin`)
 - 🖧 **Host subnet seeding** (reads `ip addr` to include locally assigned private ranges)
@@ -31,19 +31,52 @@ This tool helps penetration testers **quickly identify internal scope** on clien
 
 ---
 
-## ⚙️ Installation
-
+## Installation
 Clone this repo and drop the script:
 
-```bash
+```
 git clone https://github.com/yourname/scope-harvester.git
 cd scope-harvester
 chmod +x scope_harvester.py
 ```
-###Requires:
+### Requires:
 - Python 3.9+
 - tcpdump in PATH (for passive harvesting)
 - rich (optional, for nicer CLI output)
+
+### Help Page:
+
+```
+usage: scopesniffer2 [-h] [--iface IFACE] [--watch-seconds WATCH_SECONDS] [--watch-pkts WATCH_PKTS] [--min-hits MIN_HITS] [--no-tcpdump] [--include-host-subnets] [--hint HINT] [--only-harvest] [--ports PORTS] [--timeout TIMEOUT]
+                     [--concurrency CONCURRENCY] [--all-ports] [--json-out JSON_OUT] [--cidrs-out CIDRS_OUT] [--alive-out ALIVE_OUT] [--quiet]
+
+Passive subnet harvester (tcpdump) + fast TCP sweep (no vuln checks).
+
+options:
+  -h, --help            show this help message and exit
+  --iface IFACE         Interface for tcpdump (e.g., eth0).
+  --watch-seconds WATCH_SECONDS
+                        Passive watch duration (seconds).
+  --watch-pkts WATCH_PKTS
+                        Stop after N packets (0=disabled).
+  --min-hits MIN_HITS   Keep /24s seen at least this many times.
+  --no-tcpdump          Skip tcpdump; only use host subnets and hints.
+  --include-host-subnets
+                        Seed with host's connected private subnets.
+  --hint HINT           Additional CIDR hints (repeatable).
+  --only-harvest        Just print candidate CIDRs and exit.
+  --ports PORTS         Ports for sweep.
+  --timeout TIMEOUT     Per-port TCP connect timeout.
+  --concurrency CONCURRENCY
+                        Concurrent TCP checks.
+  --all-ports           List all responsive ports per host (otherwise stop on first).
+  --json-out JSON_OUT   Write JSON {ip:[ports]} after sweep.
+  --cidrs-out CIDRS_OUT
+                        Write discovered CIDR ranges (one per line).
+  --alive-out ALIVE_OUT
+                        Write responsive IPs (one per line).
+  --quiet               Reduce chatter.
+```
 
 ## Usage Examples
 ### Passive Harvest Only
