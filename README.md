@@ -123,7 +123,7 @@ During sweep:
 10.8.21.77
 192.168.1.15
 ```
-###alive.json (optional JSON results)
+### alive.json (optional JSON results)
 ```
 {
   "10.50.12.22": [445],
@@ -132,14 +132,15 @@ During sweep:
   "192.168.1.15": [80, 443]
 }
 ```
+
+
+
 ⚠️ Notes
-This is **not** a vulnerability scanner. It only identifies _responsive IPs/ports_.
+- **⚠️ Use only on networks you are explicitly authorized to test.**
 
-Run tcpdump with care — some environments may log or alert on promiscuous captures.
-
-Start with conservative settings (--timeout 0.5, --concurrency 512) if you’re testing in a sensitive or unstable environment.
+- This is **not** a vulnerability scanner. It only identifies _responsive IPs/ports_.
+- Run tcpdump with care — some environments may log or alert on promiscuous captures.
+- Start with conservative settings (--timeout 0.5, --concurrency 512) if you’re testing in a sensitive or unstable environment.
 
 📜 License
 This project is released under the MIT License.
-**⚠️ Use only on networks you are explicitly authorized to test.
-**
